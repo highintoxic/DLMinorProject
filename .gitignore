@@ -1,0 +1,40 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Virtual environment
+.venv/
+venv/
+env/
+
+# uv
+uv.lock
+
+# Jupyter
+.ipynb_checkpoints/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Data (too large for git)
+data/labeled-images/
+data/raw/
+*.h5
+*.hdf5
+
+# Outputs
+outputs/checkpoints/
+outputs/*.h5
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini

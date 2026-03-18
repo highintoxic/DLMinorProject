@@ -1,0 +1,17 @@
+[project]
+name = "dl-wce-classification"
+version = "0.1.0"
+description = "Deep Learning WCE Classification — Comparing models on Kvasir-Capsule dataset with class imbalance handling"
+requires-python = ">=3.10"
+dependencies = [
+    "tensorflow>=2.15",
+    "scikit-learn>=1.4",
+    "matplotlib>=3.8",
+    "seaborn>=0.13",
+    "numpy>=1.26",
+    "pandas>=2.1",
+    "opencv-python>=4.9",
+    "Pillow>=10.0",
+    "jupyter>=1.0",
+    "ipykernel>=6.29",
+]
