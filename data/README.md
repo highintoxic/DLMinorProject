@@ -1,12 +1,12 @@
 # Dataset Directory
 
-Place the **Kvasir-Capsule** dataset here.
+Place both datasets here.
 
-## Download Instructions
+## 1. Kvasir-Capsule (imbalanced — main experiments)
 
 1. Go to [https://osf.io/dv2ag/](https://osf.io/dv2ag/)
 2. Download the **labeled images** archive
-3. Extract into this directory so the structure looks like:
+3. Extract so the structure looks like:
 
 ```
 data/
@@ -26,4 +26,23 @@ data/
     └── Ulcer/
 ```
 
-> The `labeled-images/` folder is git-ignored since it's too large for version control.
+## 2. KVASIR v2 (balanced — gold standard comparison)
+
+1. Go to [https://datasets.simula.no/kvasir/](https://datasets.simula.no/kvasir/)
+2. Download the **kvasir-dataset-v2** archive
+3. Extract so the structure looks like:
+
+```
+data/
+└── kvasir-dataset-v2/
+    ├── dyed-lifted-polyps/
+    ├── dyed-resection-margins/
+    ├── esophagitis/
+    ├── normal-cecum/
+    ├── normal-pylorus/
+    ├── normal-z-line/
+    ├── polyps/
+    └── ulcerative-colitis/
+```
+
+> Both dataset folders are git-ignored since they're too large for version control.

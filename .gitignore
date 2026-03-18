@@ -26,6 +26,7 @@ uv.lock
 
 # Data (too large for git)
 data/labeled-images/
+data/kvasir-dataset-v2/
 data/raw/
 *.h5
 *.hdf5

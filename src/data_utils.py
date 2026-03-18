@@ -12,8 +12,9 @@ import seaborn as sns
 from PIL import Image
 
 
-# ── Default dataset path ──────────────────────────────────────────────
-DATA_DIR = Path(__file__).resolve().parent.parent / "data" / "labeled-images"
+# ── Default dataset paths ─────────────────────────────────────────────
+DATA_DIR = Path(__file__).resolve().parent.parent / "data" / "labeled-images"         # Kvasir-Capsule
+KVASIR_V2_DIR = Path(__file__).resolve().parent.parent / "data" / "kvasir-dataset-v2" # KVASIR v2
 
 
 def load_image_paths(data_dir: Path = DATA_DIR) -> dict[str, list[Path]]:
