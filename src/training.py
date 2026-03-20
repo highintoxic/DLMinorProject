@@ -95,14 +95,40 @@ def train_model(
             )
         )
 
-    history = model.fit(
-        X_train, y_train,
-        validation_data=(X_val, y_val),
-        epochs=epochs,
-        batch_size=batch_size,
-        callbacks=cb_list,
-        verbose=1,
-    )
+    # Check if inputs are file paths
+    if isinstance(X_train[0], (str, np.str_)):
+        def parse_function(filename, label):
+            image = tf.io.read_file(filename)
+            image = tf.image.decode_jpeg(image, channels=3)
+            image = tf.image.resize(image, [224, 224])
+            image = tf.cast(image, tf.float32) / 255.0
+            return image, label
+
+        train_ds = tf.data.Dataset.from_tensor_slices((X_train, y_train))
+        train_ds = train_ds.shuffle(buffer_size=1000)
+        train_ds = train_ds.map(parse_function, num_parallel_calls=tf.data.AUTOTUNE)
+        train_ds = train_ds.batch(batch_size).prefetch(tf.data.AUTOTUNE)
+
+        val_ds = tf.data.Dataset.from_tensor_slices((X_val, y_val))
+        val_ds = val_ds.map(parse_function, num_parallel_calls=tf.data.AUTOTUNE)
+        val_ds = val_ds.batch(batch_size).prefetch(tf.data.AUTOTUNE)
+
+        history = model.fit(
+            train_ds,
+            validation_data=val_ds,
+            epochs=epochs,
+            callbacks=cb_list,
+            verbose=1,
+        )
+    else:
+        history = model.fit(
+            X_train, y_train,
+            validation_data=(X_val, y_val),
+            epochs=epochs,
+            batch_size=batch_size,
+            callbacks=cb_list,
+            verbose=1,
+        )
     return history
 
 

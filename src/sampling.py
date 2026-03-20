@@ -62,6 +62,9 @@ def oversample_augment(
     Returns:
         dict mapping class_name -> list of paths (or arrays) with length >= threshold.
     """
+    if save_dir is None:
+        save_dir = Path(__file__).resolve().parent.parent / "data" / "augmented"
+
     rng = random.Random(seed)
 
     datagen = ImageDataGenerator(

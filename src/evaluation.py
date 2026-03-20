@@ -29,7 +29,23 @@ def evaluate_model(
     Returns:
         dict with keys: accuracy, precision, recall, f1, report_str, y_pred
     """
-    y_pred_probs = model.predict(X_test, verbose=0)
+    # Check if inputs are file paths
+    if isinstance(X_test[0], (str, np.str_)):
+        def parse_function(filename):
+            image = tf.io.read_file(filename)
+            image = tf.image.decode_jpeg(image, channels=3)
+            image = tf.image.resize(image, [224, 224])
+            image = tf.cast(image, tf.float32) / 255.0
+            return image
+
+        test_ds = tf.data.Dataset.from_tensor_slices(X_test)
+        test_ds = test_ds.map(parse_function, num_parallel_calls=tf.data.AUTOTUNE)
+        test_ds = test_ds.batch(32).prefetch(tf.data.AUTOTUNE)
+
+        y_pred_probs = model.predict(test_ds, verbose=0)
+    else:
+        y_pred_probs = model.predict(X_test, verbose=0)
+
     y_pred = np.argmax(y_pred_probs, axis=1)
 
     acc = accuracy_score(y_test, y_pred)

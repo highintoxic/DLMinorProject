@@ -27,7 +27,7 @@ def preprocess_dataset(
         dict with keys: X_train, y_train, X_val, y_val, X_test, y_test,
                         class_names, label_map
     """
-    images: list[np.ndarray] = []
+    paths: list[str] = []
     labels: list[int] = []
     class_names = sorted(class_images.keys())
     label_map = {name: idx for idx, name in enumerate(class_names)}
@@ -35,19 +35,10 @@ def preprocess_dataset(
     for cls, items in class_images.items():
         lbl = label_map[cls]
         for item in items:
-            if isinstance(item, (str, Path)):
-                img = Image.open(item).convert("RGB").resize(target_size)
-                arr = np.array(img, dtype=np.float32) / 255.0
-            else:
-                # Already a numpy array
-                arr = item.astype(np.float32) / 255.0
-                if arr.shape[:2] != target_size:
-                    img = Image.fromarray((arr * 255).astype(np.uint8)).resize(target_size)
-                    arr = np.array(img, dtype=np.float32) / 255.0
-            images.append(arr)
+            paths.append(str(item))
             labels.append(lbl)
 
-    X = np.array(images)
+    X = np.array(paths)
     y = np.array(labels)
 
     # First split: separate out test set
