@@ -105,13 +105,15 @@ def train_model(
             return image, label
 
         train_ds = tf.data.Dataset.from_tensor_slices((X_train, y_train))
-        train_ds = train_ds.shuffle(buffer_size=1000)
+        # Perfect exact shuffling since array just contains file paths
+        train_ds = train_ds.shuffle(buffer_size=len(X_train), reshuffle_each_iteration=True)
         train_ds = train_ds.map(parse_function, num_parallel_calls=tf.data.AUTOTUNE)
         train_ds = train_ds.batch(batch_size).prefetch(tf.data.AUTOTUNE)
 
         val_ds = tf.data.Dataset.from_tensor_slices((X_val, y_val))
         val_ds = val_ds.map(parse_function, num_parallel_calls=tf.data.AUTOTUNE)
-        val_ds = val_ds.batch(batch_size).prefetch(tf.data.AUTOTUNE)
+        # Cache validation data in RAM to speed up validation steps
+        val_ds = val_ds.batch(batch_size).cache().prefetch(tf.data.AUTOTUNE)
 
         history = model.fit(
             train_ds,

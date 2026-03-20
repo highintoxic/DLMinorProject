@@ -43,6 +43,13 @@ def build_model(
     if arch not in ARCHITECTURES:
         raise ValueError(f"Unknown architecture '{arch}'. Choose from {list(ARCHITECTURES.keys())}")
 
+    # Enable Mixed Precision for faster training on modern GPUs (like Colab T4)
+    try:
+        from tensorflow.keras import mixed_precision
+        mixed_precision.set_global_policy('mixed_float16')
+    except Exception as e:
+        print("Mixed precision could not be enabled:", e)
+
     base_model = ARCHITECTURES[arch](
         weights="imagenet",
         include_top=False,
@@ -67,7 +74,8 @@ def build_model(
         kernel_regularizer=regularizers.l2(l2_weight),
     )(x)
     x = layers.Dropout(dropout_rate)(x)
-    output = layers.Dense(num_classes, activation="softmax")(x)
+    # Ensure final layer is float32 for numerical stability in mixed precision
+    output = layers.Dense(num_classes, activation="softmax", dtype="float32")(x)
 
     model = models.Model(inputs=base_model.input, outputs=output, name=arch)
     return model
