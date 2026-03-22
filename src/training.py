@@ -2,6 +2,7 @@
 training.py — Training loop, LR schedulers, and callbacks (Tasks 6 & 7)
 """
 
+import gc
 from pathlib import Path
 
 import numpy as np
@@ -108,12 +109,14 @@ def train_model(
         # Perfect exact shuffling since array just contains file paths
         train_ds = train_ds.shuffle(buffer_size=len(X_train), reshuffle_each_iteration=True)
         train_ds = train_ds.map(parse_function, num_parallel_calls=tf.data.AUTOTUNE)
-        train_ds = train_ds.batch(batch_size).prefetch(tf.data.AUTOTUNE)
+        # Prefetch capped at 2 to limit peak memory usage.
+        train_ds = train_ds.batch(batch_size).prefetch(2)
 
         val_ds = tf.data.Dataset.from_tensor_slices((X_val, y_val))
         val_ds = val_ds.map(parse_function, num_parallel_calls=tf.data.AUTOTUNE)
-        # Cache validation data in RAM to speed up validation steps
-        val_ds = val_ds.batch(batch_size).cache().prefetch(tf.data.AUTOTUNE)
+        # NOTE: .cache() removed — it consumed ~1.3 GB of RAM and caused Colab crashes.
+        # Prefetch capped at 2 to limit peak memory usage.
+        val_ds = val_ds.batch(batch_size).prefetch(2)
 
         history = model.fit(
             train_ds,
@@ -196,3 +199,15 @@ def plot_lr_schedule(
     if save_path:
         fig.savefig(save_path, dpi=150, bbox_inches="tight")
     plt.show()
+
+
+def clear_session() -> None:
+    """Release GPU/CPU memory between model training runs.
+
+    Call this after saving results for one model and before building the next.
+    It clears TensorFlow's Keras session and forces a Python garbage-collection
+    pass, which typically reclaims several hundred MB in Colab.
+    """
+    tf.keras.backend.clear_session()
+    gc.collect()
+    print("TF session cleared and garbage collected.")

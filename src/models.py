@@ -2,6 +2,8 @@
 models.py — Transfer learning model builders (Task 5)
 """
 
+import gc
+
 import tensorflow as tf
 from tensorflow.keras import layers, models, regularizers
 from tensorflow.keras.applications import EfficientNetB0, MobileNetV2, ResNet101V2
@@ -106,3 +108,14 @@ def build_all_models(num_classes: int, **kwargs) -> dict[str, tf.keras.Model]:
         print_model_summary(model)
         model_dict[arch] = model
     return model_dict
+
+
+def clear_model_session() -> None:
+    """Release GPU/CPU memory after a model training run.
+
+    Call this between training different architectures to free weights,
+    optimizer state, and TF graph nodes from the previous model.
+    """
+    tf.keras.backend.clear_session()
+    gc.collect()
+    print("TF session cleared and garbage collected.")

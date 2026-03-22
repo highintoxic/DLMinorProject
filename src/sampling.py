@@ -85,24 +85,24 @@ def oversample_augment(
             result[cls] = current
             continue
 
-        # Generate augmented images
-        augmented: list = []
+        # Generate augmented images — stream to disk immediately to avoid
+        # accumulating large numpy arrays in RAM.
+        cls_dir = save_dir / cls
+        cls_dir.mkdir(parents=True, exist_ok=True)
+
+        augmented_paths: list = []
         for i in range(needed):
             src_path = rng.choice(paths)
             img = Image.open(src_path).convert("RGB").resize(target_size)
             img_arr = np.array(img)
             aug_arr = _augment_image(img_arr, datagen)
+            aug_path = cls_dir / f"aug_{i:04d}.jpg"
+            Image.fromarray(aug_arr).save(aug_path)
+            augmented_paths.append(aug_path)
+            # Release arrays immediately to keep peak RAM low.
+            del img_arr, aug_arr
 
-            if save_dir:
-                cls_dir = save_dir / cls
-                cls_dir.mkdir(parents=True, exist_ok=True)
-                aug_path = cls_dir / f"aug_{i:04d}.jpg"
-                Image.fromarray(aug_arr).save(aug_path)
-                augmented.append(aug_path)
-            else:
-                augmented.append(aug_arr)
-
-        result[cls] = current + augmented
+        result[cls] = current + augmented_paths
 
     return result
 
